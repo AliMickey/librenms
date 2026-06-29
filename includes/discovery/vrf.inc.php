@@ -235,9 +235,14 @@ if (LibrenmsConfig::get('enable_vrfs')) {
             echo "\n  [VRF $vrf_name] RD    - $vrf_rd";
             //echo "\n  [VRF $vrf_name] DESC  - $vrf_desc";
 
+            // On Arista EOS the SNMP context name matches the VRF name. The default
+            // VRF is reachable without a context, so leave it null.
+            $snmp_context = $vrf_name === 'default' ? null : $vrf_name;
+
             $vrfs = [
                 'vrf_oid' => $vrf_oid,
                 'vrf_name' => $vrf_name,
+                'snmp_context' => $snmp_context,
                 //'bgpLocalAs' => $vrf_as,
                 'mplsVpnVrfRouteDistinguisher' => $vrf_rd,
                 //'mplsVpnVrfDescription' => $vrf_desc,
@@ -245,7 +250,7 @@ if (LibrenmsConfig::get('enable_vrfs')) {
             ];
 
             if (dbFetchCell('SELECT COUNT(*) FROM vrfs WHERE device_id = ? AND `vrf_oid`=?', [$device['device_id'], $vrf_oid])) {
-                dbUpdate(['vrf_name' => $vrf_name, 'bgpLocalAs' => $vrf_as, 'mplsVpnVrfRouteDistinguisher' => $vrf_rd, 'mplsVpnVrfDescription' => ''], 'vrfs', 'device_id=? AND vrf_oid=?', [$device['device_id'], $vrf_oid]);
+                dbUpdate(['vrf_name' => $vrf_name, 'snmp_context' => $snmp_context, 'bgpLocalAs' => $vrf_as, 'mplsVpnVrfRouteDistinguisher' => $vrf_rd, 'mplsVpnVrfDescription' => ''], 'vrfs', 'device_id=? AND vrf_oid=?', [$device['device_id'], $vrf_oid]);
             } else {
                 dbInsert($vrfs, 'vrfs');
             }

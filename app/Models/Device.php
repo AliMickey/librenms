@@ -215,13 +215,24 @@ class Device extends BaseModel
 
     /**
      * Get VRF contexts to poll.
-     * If no contexts are found, return the default context ''
+     * Combines auto-discovered vrf-lite contexts and per-VRF SNMP contexts with
+     * manually configured routing_snmp_contexts. If no contexts are found, return
+     * the default context ''
      *
      * @return array
      */
     public function getVrfContexts(): array
     {
-        return $this->vrfLites->isEmpty() ? [''] : $this->vrfLites->pluck('context_name')->all();
+        $contexts = $this->vrfLites->isEmpty() ? [''] : $this->vrfLites->pluck('context_name')->all();
+
+        $contexts = array_merge($contexts, $this->vrfs->pluck('snmp_context')->filter()->all());
+
+        $manual = json_decode((string) $this->getAttrib('routing_snmp_contexts', '[]'), true);
+        if (is_array($manual)) {
+            $contexts = array_merge($contexts, $manual);
+        }
+
+        return array_values(array_unique($contexts));
     }
 
     /**

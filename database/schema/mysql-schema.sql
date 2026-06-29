@@ -2959,6 +2959,7 @@ CREATE TABLE `vrfs` (
   `vrf_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `vrf_oid` varchar(256) NOT NULL,
   `vrf_name` varchar(128) DEFAULT NULL,
+  `snmp_context` varchar(128) DEFAULT NULL,
   `bgpLocalAs` int(10) unsigned DEFAULT NULL,
   `mplsVpnVrfRouteDistinguisher` varchar(128) DEFAULT NULL,
   `mplsVpnVrfDescription` text NOT NULL,
